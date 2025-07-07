@@ -1,0 +1,70 @@
+# Compiled class files
+target/
+build/
+bin/
+
+# Maven-related
+!**/src/main/**/target/
+!**/src/test/**/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/wrapper/maven-wrapper.jar # Maven wrapper JAR (can be re-downloaded)
+
+# Gradle-related
+.gradle/
+!/build/generated-src/ # If you have generated sources you want to keep
+gradle/wrapper/gradle-wrapper.jar # Gradle wrapper JAR (can be re-downloaded)
+*.iml # IntelliJ IDEA
+.classpath
+.project
+.settings/
+.idea/
+.vscode/ # VS Code / Cursor IDE specific files
+
+# Log files
+*.log
+logs/
+nohup.out
+
+# IDE-specific files (common for Eclipse, IntelliJ, VS Code)
+.metadata
+*.sublime-project
+*.sublime-workspace
+.DS_Store # macOS specific
+Thumbs.db # Windows specific
+
+# Spring Boot specific
+# Externalized configuration files
+# These should generally not be committed to Git if they contain sensitive data (passwords, API keys)
+# or environment-specific configurations. Manage them via environment variables or secrets management.
+# If they are template files, you might commit them.
+/application.properties
+# application*.yml
+# bootstrap*.properties
+# bootstrap*.yml
+
+# Crash reports
+hs_err_pid*
+
+# Package Manager files
+# node_modules/ # If you have a frontend build alongside
+# npm-debug.log
+# yarn-error.log
+
+# Mac specific files
+.DS_Store
+
+# Windows specific files
+Thumbs.db
+
+# Misc
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
