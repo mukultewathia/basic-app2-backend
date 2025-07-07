@@ -30,6 +30,7 @@ public class VisitController {
     }
 
 
+    // signup endpoint
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody Map<String, String> payload) {
         String username = payload.get("username").toLowerCase();
