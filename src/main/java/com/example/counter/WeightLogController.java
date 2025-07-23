@@ -44,7 +44,7 @@ public class WeightLogController {
     }
 
     private Long getUserId(String userName) {
-        return userRepository.findByUsername(userName).orElseThrow().getId();
+        return userRepository.findByUsername(userName).orElseThrow().getUserId();
     }
 
     /* ===== Data Transfer Objects ===== */
