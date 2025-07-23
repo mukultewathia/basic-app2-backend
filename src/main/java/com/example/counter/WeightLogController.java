@@ -17,27 +17,30 @@ import org.springframework.http.HttpStatus;
 @CrossOrigin(origins = "*")
 public class WeightLogController {
     @Autowired
-    private WeightLogRepository repo;
+    private WeightMetricRepository repo;
 
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private WeightMetricService weightMetricService;
+
     @PostMapping("/addWeight")
     @ResponseStatus(HttpStatus.CREATED)
     public WeightLogResponse add(@Valid @RequestBody WeightLogRequest req) {
-        WeightLog entity = new WeightLog();
-        entity.setUserId(getUserId(req.userName));
-        entity.setWeightKg(req.weightKg());
-        entity.setWeighedAt(
-                req.weighedAt() != null ? req.weighedAt() : Instant.now());
+        WeightMetric entity = weightMetricService.addWeightMetric(
+                req.userName(), 
+                req.weightKg()
+        );
 
-        return new WeightLogResponse(repo.save(entity));
+        return new WeightLogResponse(entity);
     }
 
     @GetMapping("/dailyAverages")
     public List<DailyWeightAvg> getDailyAverages(@RequestParam(name = "userName", required = true) String userName) {
         System.out.println("get daily averages for user " + userName);
-        return repo.findDailyAverages(getUserId(userName)).stream().map(p -> new DailyWeightAvg(
+        Long userId = getUserId(userName);
+        return repo.findDailyAverages(userId).stream().map(p -> new DailyWeightAvg(
                 p.getDate(),
                 p.getAvgWeightKg()))
                 .toList();
@@ -56,9 +59,9 @@ public class WeightLogController {
 
     public record WeightLogResponse(
             Long id, Long userId, BigDecimal weightKg, Instant weighedAt) {
-        WeightLogResponse(WeightLog e) {
-            this(e.getId(), e.getUserId(),
-                    e.getWeightKg(), e.getWeighedAt());
+        WeightLogResponse(WeightMetric e) {
+            this(e.getMetricId(), e.getUser().getUserId(),
+                    e.getWeightKgs(), e.getCreationTimestamp());
         }
     }
 

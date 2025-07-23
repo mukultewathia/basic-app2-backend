@@ -50,6 +50,7 @@ Thumbs.db # Windows specific
 
 # Crash reports
 hs_err_pid*
+src/main/resources/application-local.properties
 
 # Package Manager files
 # node_modules/ # If you have a frontend build alongside
