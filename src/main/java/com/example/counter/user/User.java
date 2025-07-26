@@ -1,4 +1,4 @@
-package com.example.counter;
+package com.example.counter.user;
 
 import jakarta.persistence.*;
 

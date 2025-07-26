@@ -1,8 +1,9 @@
-package com.example.counter;
+package com.example.counter.metric;
 
+import com.example.counter.user.User;
+import com.example.counter.metric.MetricKind;
 import jakarta.persistence.*;
 import java.time.Instant;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -22,8 +23,15 @@ public abstract class Metric {
   private MetricKind kind;
 
 
-  @CreationTimestamp
   private Instant creationTimestamp;
+
+  public Metric() {}
+
+  public Metric(User user, MetricKind kind) {
+    this.user = user;
+    this.kind = kind;
+    this.creationTimestamp = Instant.now();
+  }
 
   public Long getMetricId() {
     return metricId;

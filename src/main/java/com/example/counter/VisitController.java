@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
 import java.util.*;
+import com.example.counter.user.User;
+import com.example.counter.user.UserRepository;
 
 @RestController
 @CrossOrigin(origins = "*") // Allow frontend access
@@ -12,20 +14,10 @@ public class VisitController {
 
     Set<String> uniqueNames = new HashSet<>();
     @Autowired
-    private VisitRepository visitRepository;
-
-    @Autowired
     private UserRepository userRepository;
-
-    @PostMapping("/visit")
-    public ResponseEntity<Void> addVisit() {
-        visitRepository.logVisit();
-        return ResponseEntity.ok().build();
-    }
 
     @PostMapping("/createUser")
     public ResponseEntity<Void> createUser() {
-        visitRepository.logVisit();
         return ResponseEntity.ok().build();
     }
 
@@ -61,7 +53,7 @@ public class VisitController {
 
     @GetMapping("/count")
     public Map<String, Integer> getCount() {
-        int count = visitRepository.getVisitCount();
+        int count = userRepository.totalUsersCount();
         return Collections.singletonMap("count", count);
     }
 

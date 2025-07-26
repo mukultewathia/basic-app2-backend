@@ -1,4 +1,4 @@
-package com.example.counter;
+package com.example.counter.weight;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Query;  
+import com.example.counter.weight.WeightMetric;
 
 public interface WeightMetricRepository extends JpaRepository<WeightMetric, Long> {
     // extra read/query methods can go here later
@@ -15,13 +16,13 @@ public interface WeightMetricRepository extends JpaRepository<WeightMetric, Long
      * Uses PostgreSQL DATE() cast + AVG().
      */
     @Query(value = """
-        SELECT DATE(wm.creation_timestamp)          AS date,
+        SELECT DATE(wm.weighed_at)          AS date,
                ROUND(AVG(wm.weight_kgs), 2)  AS avg_weight_kg
         FROM   weight_metrics wm
         JOIN   metrics m ON wm.metric_id = m.metric_id
         WHERE  m.user_id = :userId
-        GROUP  BY DATE(wm.creation_timestamp)
-        ORDER  BY DATE(wm.creation_timestamp)
+        GROUP  BY DATE(wm.weighed_at)
+        ORDER  BY DATE(wm.weighed_at)
         """,
         nativeQuery = true)
     List<DailyAvgProjection> findDailyAverages(@Param("userId") Long userId);
