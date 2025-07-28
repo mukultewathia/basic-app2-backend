@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import com.example.counter.weight.WeightDto.WeightRequest;
 import com.example.counter.weight.WeightDto.WeightResponse;
+import com.example.counter.weight.WeightDto.AllWeightData;
 import com.example.counter.weight.WeightDto.DailyWeightAvg;
 import java.util.List;
 import com.example.counter.user.User;
@@ -38,5 +39,10 @@ public class WeightController {
     @GetMapping("/dailyAverages")
     public List<DailyWeightAvg> getDailyAverages(@RequestParam(name = "userName", required = true) String userName) {
         return weightMetricService.getDailyAverages(userName);
+    }
+
+    @GetMapping("/allData")
+    public List<AllWeightData> getAllData(@RequestParam(name = "userName", required = true) String userName) {
+        return weightMetricService.getAllData(userName);
     }
 }

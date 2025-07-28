@@ -3,6 +3,7 @@ package com.example.counter.weight;
 import com.example.counter.user.User;
 import com.example.counter.user.UserRepository;
 import com.example.counter.weight.WeightDto.DailyWeightAvg;
+import com.example.counter.weight.WeightDto.AllWeightData;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -64,7 +65,20 @@ public class WeightMetricService {
                 .toList();
     }
 
+    public List<AllWeightData> getAllData(String userName) {
+        Long userId = userRepo.findByUsername(userName).orElseThrow().getUserId();
+        return repo.findAllData(userId).stream().map(p -> new AllWeightData(
+                p.getMetricId(),
+                p.getWeightKgs(),
+                p.getWeighedAt()))
+                .toList();
+    }
+
     private void logTime(String message, StopWatch stopWatch) {
         System.out.println(message + stopWatch.getTotalTimeMillis() + " ms");
+    }
+
+    public void deleteByMetricId(Long metricId) {
+        repo.deleteById(metricId);
     }
 }

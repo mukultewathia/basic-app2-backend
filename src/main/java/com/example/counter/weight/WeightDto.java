@@ -23,4 +23,6 @@ public class WeightDto {
     public record DailyWeightAvg(
             LocalDate date,
             double avgWeightKg) {}
+
+    public record AllWeightData(Long metricId, BigDecimal weightKgs, Instant weighedAt){}
 } 
