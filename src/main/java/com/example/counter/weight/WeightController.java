@@ -45,4 +45,9 @@ public class WeightController {
     public List<AllWeightData> getAllData(@RequestParam(name = "userName", required = true) String userName) {
         return weightMetricService.getAllData(userName);
     }
+
+    @PostMapping("/deleteByMetricId")
+    public void deleteByMetricId(@RequestParam(name = "metricId") Long metricId) {
+        weightMetricService.deleteByMetricId(metricId);
+    }
 }
