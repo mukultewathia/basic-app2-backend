@@ -49,6 +49,7 @@ public class HabitController {
     @PostMapping("/addHabitEntry")
     @ResponseStatus(HttpStatus.CREATED)
     public HabitEntryResponse addHabitEntry(@Valid @RequestBody HabitEntryRequest req) {
+        System.out.println("req = " + req.toString());
         HabitEntry entry = habitService.addHabitEntry(
                 req.username(),
                 req.habitName(),

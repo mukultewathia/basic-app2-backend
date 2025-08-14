@@ -19,7 +19,7 @@ public class HabitEntry {
     private Habit habit;
 
     @Column(name = "entry_date", nullable = false)
-    private OffsetDateTime entryDate;
+    private LocalDate entryDate;
 
     @Column(nullable = false)
     private Boolean performed;
@@ -29,32 +29,23 @@ public class HabitEntry {
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
-    // Constructors
     public HabitEntry() {
         this.createdAt = getIndiaTimestamp();
     }
 
     public HabitEntry(Habit habit, LocalDate entryDate, Boolean performed, String notes) {
         this.habit = habit;
-        this.entryDate = convertToIndiaTimestamp(entryDate);
+        this.entryDate = entryDate;
         this.performed = performed;
         this.notes = notes;
         this.createdAt = getIndiaTimestamp();
     }
     
-    // Helper method to get current timestamp in India timezone
     private OffsetDateTime getIndiaTimestamp() {
         ZoneId indiaZone = ZoneId.of("Asia/Kolkata");
         return OffsetDateTime.now(indiaZone);
     }
     
-    // Helper method to convert LocalDate to OffsetDateTime with India timezone
-    private OffsetDateTime convertToIndiaTimestamp(LocalDate localDate) {
-        ZoneId indiaZone = ZoneId.of("Asia/Kolkata");
-        return localDate.atStartOfDay(indiaZone).toOffsetDateTime();
-    }
-
-    // Getters and setters
     public Long getEntryId() {
         return entryId;
     }
@@ -69,16 +60,14 @@ public class HabitEntry {
 
     // Returns the date portion in India timezone
     public LocalDate getEntryDate() {
-        ZoneId indiaZone = ZoneId.of("Asia/Kolkata");
-        return entryDate.atZoneSameInstant(indiaZone).toLocalDate();
+        return entryDate;
     }
 
     public void setEntryDate(LocalDate entryDate) {
-        this.entryDate = convertToIndiaTimestamp(entryDate);
+        this.entryDate = entryDate;
     }
     
-    // Internal getter for the actual OffsetDateTime (for database operations)
-    public OffsetDateTime getEntryDateTimestamp() {
+    public LocalDate getEntryDateTimestamp() {
         return entryDate;
     }
 
