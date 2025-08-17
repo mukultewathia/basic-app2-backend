@@ -4,6 +4,8 @@ import com.example.counter.user.User;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "habits")
@@ -24,6 +26,9 @@ public class Habit {
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
+
+    @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HabitEntry> habitEntries = new ArrayList<>();
 
     // Constructors
     public Habit() {
@@ -78,5 +83,13 @@ public class Habit {
 
     public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public List<HabitEntry> getHabitEntries() {
+        return habitEntries;
+    }
+
+    public void setHabitEntries(List<HabitEntry> habitEntries) {
+        this.habitEntries = habitEntries;
     }
 } 

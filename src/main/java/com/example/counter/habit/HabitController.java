@@ -40,11 +40,12 @@ public class HabitController {
         return habitService.getAllHabitEntries(username, habitNames);
     }
 
-    // 3. deleteHabit(entry_id) - Note: This deletes a habit entry, not the habit itself
-    @DeleteMapping("/deleteHabitEntry")
+    // 3. deleteHabitEntry(entry_id) - Note: This deletes a habit entry, not the habit itself
+    @DeleteMapping("/entries/{entryId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteHabitEntry(@RequestParam(name = "entryId") Long entryId) {
-        habitService.deleteHabitEntry(entryId);
+    public void deleteHabitEntry(@PathVariable Long entryId) {
+        String username = CurrentUser.getCurrentUsername();
+        habitService.deleteHabitEntry(username, entryId);
     }
 
     // 4. addHabitEntry(habitName, entryDate, performed, notes) - username from JWT token
@@ -69,5 +70,12 @@ public class HabitController {
             @RequestParam(name = "habitName", required = false) String habitName) {
         String username = CurrentUser.getCurrentUsername();
         return habitService.getAllHabits(username, habitName);
+    }
+
+    @DeleteMapping("/{habitId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteHabit(@PathVariable Long habitId) {
+        String username = CurrentUser.getCurrentUsername();
+        habitService.deleteHabit(username, habitId);
     }
 } 

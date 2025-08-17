@@ -58,12 +58,15 @@ public class HabitService {
                 .toList();
     }
 
-    public void deleteHabitEntry(Long entryId) {
+    public void deleteHabitEntry(String username, Long entryId) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        if (!habitEntryRepo.existsById(entryId)) {
-            throw new RuntimeException("Habit entry not found with id: " + entryId);
+        HabitEntry entry = habitEntryRepo.findById(entryId)
+            .orElseThrow(() -> new RuntimeException("Habit entry not found with id: " + entryId));
+        
+        if (!entry.getHabit().getUser().getUsername().equals(username)) {
+            throw new RuntimeException("Habit entry does not belong to user: " + username);
         }
 
         habitEntryRepo.deleteById(entryId);
@@ -134,6 +137,25 @@ public class HabitService {
         return habits.stream()
                 .map(AllHabitData::new)
                 .toList();
+    }
+
+    public void deleteHabit(String username, Long habitId) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        
+        // Check if habit exists and belongs to the user
+        Habit habit = habitRepo.findById(habitId)
+            .orElseThrow(() -> new RuntimeException("Habit not found with id: " + habitId));
+        
+        if (!habit.getUser().getUsername().equals(username)) {
+            throw new RuntimeException("Habit does not belong to user: " + username);
+        }
+        
+        // Delete the habit (JPA will cascade delete all associated entries)
+        habitRepo.delete(habit);
+
+        stopWatch.stop();
+        logTime("delete habit took ms = ", stopWatch);
     }
 
     private void logTime(String message, StopWatch stopWatch) {
