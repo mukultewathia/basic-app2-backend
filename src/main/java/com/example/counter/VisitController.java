@@ -9,20 +9,20 @@ import com.example.counter.user.User;
 import com.example.counter.user.UserRepository;
 
 @RestController
-@CrossOrigin(origins = "*") // Allow frontend access
+@CrossOrigin(origins = "h") // Allow frontend access
 public class VisitController {
 
     Set<String> uniqueNames = new HashSet<>();
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/createUser")
+    @PostMapping("/createUser1")
     public ResponseEntity<Void> createUser() {
         return ResponseEntity.ok().build();
     }
 
 
-    @PostMapping("/signup")
+    @PostMapping("/signup1")
     public ResponseEntity<String> signup(@RequestBody Map<String, String> payload) {
         String username = payload.get("username").toLowerCase();
         String password = payload.get("password");
@@ -38,7 +38,7 @@ public class VisitController {
                 });
     }
 
-    @PostMapping("/login")
+    @PostMapping("/loginx")
     public ResponseEntity<Boolean> login(@RequestBody Map<String, String> payload) {
         String username = payload.get("username").toLowerCase();
         String password = payload.get("password");

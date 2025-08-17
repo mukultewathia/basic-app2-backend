@@ -8,7 +8,6 @@ import java.time.LocalDate;
 
 public class WeightDto {
     public record WeightRequest(
-            @NotNull String userName,
             @NotNull @DecimalMin("0.01") BigDecimal weightKg,
             Instant date) {}
 

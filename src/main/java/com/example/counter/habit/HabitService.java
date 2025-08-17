@@ -83,25 +83,20 @@ public class HabitService {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        // Set default value for notes if null
         if (notes == null) {
             notes = "";
         }
 
-        // Validate entry date is not in the future
         LocalDate today = LocalDate.now();
         if (entryDate.isAfter(today)) {
             throw new RuntimeException("Cannot create habit entry for future date: " + entryDate);
         }
 
-        // Find the habit
         Habit habit = habitRepo.findByUsernameAndName(username, habitName)
             .orElseThrow(() -> new RuntimeException("Habit not found: " + habitName + " for user: " + username));
 
-        // Check if entry already exists for this date
         Optional<HabitEntry> existingEntry = habitEntryRepo.findByUsernameAndHabitNameAndDate(username, habitName, entryDate);
         if (existingEntry.isPresent()) {
-            // Update existing entry
             HabitEntry entry = existingEntry.get();
             entry.setPerformed(performed);
             entry.setNotes(notes);
@@ -111,7 +106,6 @@ public class HabitService {
             logTime("update habit entry took ms = ", stopWatch);
             return saved;
         } else {
-            // Create new entry
             HabitEntry entry = new HabitEntry(habit, entryDate, performed, notes);
             HabitEntry saved = habitEntryRepo.save(entry);
             

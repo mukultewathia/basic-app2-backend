@@ -8,7 +8,6 @@ import java.time.OffsetDateTime;
 public class HabitDto {
     
     public record HabitRequest(
-            @NotNull @NotBlank String username,
             @NotNull @NotBlank String habitName,
             String description) {}
     
@@ -28,7 +27,6 @@ public class HabitDto {
     }
     
     public record HabitEntryRequest(
-            @NotNull @NotBlank String username,
             @NotNull @NotBlank String habitName,
             @NotNull LocalDate entryDate,
             @NotNull Boolean performed,

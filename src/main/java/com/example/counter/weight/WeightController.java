@@ -8,6 +8,7 @@ import com.example.counter.weight.WeightDto.WeightRequest;
 import com.example.counter.weight.WeightDto.WeightResponse;
 import com.example.counter.weight.WeightDto.AllWeightData;
 import com.example.counter.weight.WeightDto.DailyWeightAvg;
+import com.example.counter.auth.security.CurrentUser;
 import java.util.List;
 import com.example.counter.user.User;
 import com.example.counter.user.UserRepository;
@@ -22,8 +23,9 @@ public class WeightController {
     @PostMapping("/addWeight")
     @ResponseStatus(HttpStatus.CREATED)
     public WeightResponse add(@Valid @RequestBody WeightRequest req) {
+        String username = CurrentUser.getCurrentUsername();
         WeightMetric entity = weightMetricService.add(
-                req.userName(),
+                username,
                 req.weightKg(),
                 req.date()
         );
@@ -37,13 +39,15 @@ public class WeightController {
     }
 
     @GetMapping("/dailyAverages")
-    public List<DailyWeightAvg> getDailyAverages(@RequestParam(name = "userName", required = true) String userName) {
-        return weightMetricService.getDailyAverages(userName);
+    public List<DailyWeightAvg> getDailyAverages() {
+        String username = CurrentUser.getCurrentUsername();
+        return weightMetricService.getDailyAverages(username);
     }
 
     @GetMapping("/allData")
-    public List<AllWeightData> getAllData(@RequestParam(name = "userName", required = true) String userName) {
-        return weightMetricService.getAllData(userName);
+    public List<AllWeightData> getAllData() {
+        String username = CurrentUser.getCurrentUsername();
+        return weightMetricService.getAllData(username);
     }
 
     @PostMapping("/deleteByMetricId")
