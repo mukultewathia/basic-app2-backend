@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
+
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.example.counter.auth.jwt.JwtService;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -49,48 +51,50 @@ public class AuthController {
     var access = jwt.generateToken(user.getUsername(), user.getUserId());
     var refresh = jwt.generateRefreshToken(user.getUsername(), user.getUserId());
 
+    // Only set refresh token as cookie, access token will be in response body
     res.addHeader(HttpHeaders.SET_COOKIE,
-        CookieUtil.accessCookie(access, Duration.ofMinutes(15).toSeconds()).toString());
-    res.addHeader(HttpHeaders.SET_COOKIE,
-        CookieUtil.refreshCookie(refresh, Duration.ofDays(7).toSeconds()).toString());
+        CookieUtil.refreshCookie(refresh, Duration.ofDays(1).toSeconds()).toString());
 
-    return ResponseEntity.ok(Map.of("id", user.getUserId(), "username", user.getUsername()));
+    return ResponseEntity.ok(Map.of(
+        "id", user.getUserId(), 
+        "username", user.getUsername(),
+        "accessToken", access,
+        "expiresIn", Duration.ofMinutes(30).toSeconds()));
   }
 
   @PostMapping("/logout")
-  public ResponseEntity<?> logout(@CookieValue(name = "access_token", required = false) String access,
-      HttpServletResponse res) {
-    if (access == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of());
-    }
+  public ResponseEntity<?> logout(HttpServletResponse res) {
+    // Clear the refresh token cookie
     res.addHeader(HttpHeaders.SET_COOKIE,
         CookieUtil.refreshCookie("", 0).toString());
-    res.addHeader(HttpHeaders.SET_COOKIE,
-        CookieUtil.accessCookie("", 0).toString());
 
     return ResponseEntity.ok(Map.of("ok", true, "message", "Logged out successfully"));
   }
 
   @PostMapping("/refresh")
-  public ResponseEntity<?> refresh(@CookieValue(name = "refresh_token", required = false) String refresh,
-      HttpServletResponse res) {
-    if (refresh == null)
+  public ResponseEntity<?> refresh(@CookieValue(name = "refresh_token", required = false) String refresh) {
+    if (refresh == null){
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
 
     final String username;
     try {
       username = jwt.validateAndGetSubject(refresh);
+    } catch (TokenExpiredException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Refresh token expired"));
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid token"));
     }
 
     var u = users.findByUsername(username).orElseThrow();
     var access = jwt.generateToken(u.getUsername(), u.getUserId());
 
-    res.addHeader(HttpHeaders.SET_COOKIE,
-        CookieUtil.accessCookie(access, Duration.ofMinutes(15).toSeconds()).toString());
-
-    return ResponseEntity.ok(Map.of("ok", true));
+    return ResponseEntity.ok(Map.of(
+        "ok", true,
+        "username", u.getUsername(),
+        "userId", u.getUserId(),
+        "accessToken", access,
+        "expiresIn", Duration.ofMinutes(30).toSeconds()));
   }
 
   @GetMapping("/me")

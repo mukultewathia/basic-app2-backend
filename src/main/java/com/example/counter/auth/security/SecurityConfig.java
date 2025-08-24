@@ -22,14 +22,15 @@ import java.util.Arrays;
 public class SecurityConfig {
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwt, CorsConfigurationSource corsSource) throws Exception {
+  public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwt, XsrfFilter xsrfFilter, CorsConfigurationSource corsSource) throws Exception {
     http
       .csrf(csrf -> csrf.disable()) // Disable CSRF for JWT-based auth
       .cors(cors -> cors.configurationSource(corsSource))
       .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .authorizeHttpRequests(auth -> auth
-         .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/auth/refresh" ).permitAll()
+         .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/auth/refresh").permitAll()
          .anyRequest().authenticated())
+      .addFilterBefore(xsrfFilter, UsernamePasswordAuthenticationFilter.class)
       .addFilterBefore(jwt, UsernamePasswordAuthenticationFilter.class)
       .formLogin(form -> form.disable()) // Disable form login
       .httpBasic(basic -> basic.disable()) // Disable HTTP basic auth
@@ -55,6 +56,8 @@ public class SecurityConfig {
     cfg.setAllowedOrigins(origins);
     cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
     cfg.setAllowedHeaders(List.of("Content-Type","X-XSRF-TOKEN","Authorization"));
+     // Allow credentials (cookies, authorization headers) to be sent with cross-origin requests
+    cfg.setExposedHeaders(List.of("X-XSRF-TOKEN"));
     cfg.setAllowCredentials(true);
     cfg.setMaxAge(3600L);
     var source = new UrlBasedCorsConfigurationSource();
