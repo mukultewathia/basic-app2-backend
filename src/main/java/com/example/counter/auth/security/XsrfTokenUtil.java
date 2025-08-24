@@ -2,6 +2,7 @@ package com.example.counter.auth.security;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,9 @@ public class XsrfTokenUtil {
     private static final String XSRF_HEADER_NAME = "X-XSRF-TOKEN";
     
     private final SecureRandom secureRandom = new SecureRandom();
+    
+    @Value("${cookie.domain}")
+    private String cookieDomain;
 
     /**
      * Validate XSRF token by comparing cookie value with header value
@@ -34,6 +38,7 @@ public class XsrfTokenUtil {
     public ResponseCookie createXsrfCookie() {
         return ResponseCookie.from(XSRF_COOKIE_NAME, generateToken())
                 .httpOnly(false) // Must be accessible to JavaScript for header inclusion
+                .domain(cookieDomain)
                 .secure(true)
                 .sameSite("Lax")
                 .path("/")

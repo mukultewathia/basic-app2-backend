@@ -24,4 +24,4 @@ public class WeightDto {
             double avgWeightKg) {}
 
     public record AllWeightData(Long metricId, BigDecimal weightKgs, Instant weighedAt){}
-} 
+}
