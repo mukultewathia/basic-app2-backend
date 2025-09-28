@@ -8,6 +8,7 @@ import com.example.counter.habit.HabitDto.HabitEntryResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,7 +91,8 @@ public class HabitService {
             notes = "";
         }
 
-        LocalDate today = LocalDate.now();
+        // Get current date in India timezone
+        LocalDate today = getCurrentDateInIndia();
         if (entryDate.isAfter(today)) {
             throw new RuntimeException("Cannot create habit entry for future date: " + entryDate);
         }
@@ -156,6 +158,14 @@ public class HabitService {
 
         stopWatch.stop();
         logTime("delete habit took ms = ", stopWatch);
+    }
+
+    /**
+     * Gets current date in India timezone
+     */
+    private LocalDate getCurrentDateInIndia() {
+        ZoneId indiaZone = ZoneId.of("Asia/Kolkata");
+        return LocalDate.now(indiaZone);
     }
 
     private void logTime(String message, StopWatch stopWatch) {
