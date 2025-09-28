@@ -22,7 +22,7 @@ import java.util.Collections;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
-  private static final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
+  private static final Logger logger = LoggerFactory.getLogger("CounterApp");
   
   private final JwtService jwt;
   private final AppUserDetailsService users;
@@ -31,7 +31,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   protected void doFilterInternal(@NonNull HttpServletRequest req, @NonNull HttpServletResponse res, @NonNull FilterChain chain)
       throws java.io.IOException, jakarta.servlet.ServletException {
 
+    String requestURI = req.getRequestURI();
+    logger.debug("Processing request: {} {}", req.getMethod(), requestURI);
+
     if (isAuthenticationEndpoint(req)) {
+      logger.debug("Skipping authentication for endpoint: {}", requestURI);
       chain.doFilter(req, res);
       return;
     } 
@@ -40,6 +44,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       var token = extractTokenFromHeader(req);
       if (token != null) {
         try {
+          logger.debug("Validating JWT token for request: {}", requestURI);
           // validate the token and get user context
           var userContext = jwt.validateAndGetUserContext(token);
           var user = users.loadUserByUsername(userContext.getUsername());
@@ -47,20 +52,33 @@ public class JwtAuthFilter extends OncePerRequestFilter {
           var auth = new JwtAuthenticationToken(user.getUsername(), userContext, (Collection<? extends GrantedAuthority>) authorities);
           auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
           SecurityContextHolder.getContext().setAuthentication(auth);
-          logger.debug("JWT authentication successful for user: {} (ID: {})", userContext.getUsername(), userContext.getUserId());
+          logger.info("JWT authentication successful for user: {} (ID: {}) on {}", userContext.getUsername(), userContext.getUserId(), requestURI);
+          System.out.println("JWT authentication successful for user: " + userContext.getUsername() + " (ID: " + userContext.getUserId() + ")");
         } catch (TokenExpiredException e) {
+          logger.warn("JWT token expired for request: {}", requestURI);
           res.setStatus(HttpStatus.UNAUTHORIZED.value());
           res.setContentType("application/json");
           res.getWriter().write("{\"error\": \"Token expired\", \"code\": \"TOKEN_EXPIRED\"}");
           return;
         }
         catch (Exception e){
+          logger.error("JWT token validation failed for request: {} - {}", requestURI, e.getMessage());
           res.setStatus(HttpStatus.UNAUTHORIZED.value());
           res.setContentType("application/json");
           res.getWriter().write("{\"error\": \"Invalid token\", \"code\": \"INVALID_TOKEN\"}");
           return;
         }
       }
+      else {
+        logger.warn("No JWT token found for request: {}", requestURI);
+        System.out.println("token is null");
+        res.setStatus(HttpStatus.UNAUTHORIZED.value());
+        res.setContentType("application/json");
+        res.getWriter().write("{\"error\": \"Token is null\", \"code\": \"TOKEN_IS_NULL\"}");
+        return;
+      }
+    } else {
+      logger.debug("User already authenticated for request: {}", requestURI);
     }
     chain.doFilter(req, res);
   }

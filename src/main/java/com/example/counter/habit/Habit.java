@@ -30,6 +30,9 @@ public class Habit {
     @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HabitEntry> habitEntries = new ArrayList<>();
 
+    @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<com.example.counter.challenge.ChallengeHabits> challengeHabits = new ArrayList<>();
+
     // Constructors
     public Habit() {
         this.createdAt = getIndiaTimestamp();
@@ -91,5 +94,13 @@ public class Habit {
 
     public void setHabitEntries(List<HabitEntry> habitEntries) {
         this.habitEntries = habitEntries;
+    }
+
+    public List<com.example.counter.challenge.ChallengeHabits> getChallengeHabits() {
+        return challengeHabits;
+    }
+
+    public void setChallengeHabits(List<com.example.counter.challenge.ChallengeHabits> challengeHabits) {
+        this.challengeHabits = challengeHabits;
     }
 } 

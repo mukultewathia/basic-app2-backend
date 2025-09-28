@@ -16,4 +16,7 @@ public interface HabitRepository extends JpaRepository<Habit, Long> {
     
     @Query("SELECT h FROM Habit h WHERE h.user.username = :username AND h.name IN :habitNames")
     List<Habit> findByUsernameAndNameIn(@Param("username") String username, @Param("habitNames") List<String> habitNames);
+
+    @Query("SELECT h FROM Habit h WHERE h.user.username = :username AND h.habitId IN :habitIds")
+    List<Habit> findHabitsByIdsAndUsername(@Param("habitIds") List<Long> habitIds, @Param("username") String username);
 } 

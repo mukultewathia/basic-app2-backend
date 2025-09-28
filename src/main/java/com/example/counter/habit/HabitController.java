@@ -74,6 +74,7 @@ public class HabitController {
     public List<AllHabitData> getAllHabits(
             @RequestParam(name = "habitName", required = false) String habitName) {
         String username = CurrentUser.getCurrentUsername();
+        System.out.println("tewamaf username: " + username);
         return habitService.getAllHabits(username, habitName);
     }
 

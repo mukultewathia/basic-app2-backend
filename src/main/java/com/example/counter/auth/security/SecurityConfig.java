@@ -2,9 +2,6 @@
 package com.example.counter.auth.security;
 
 import org.springframework.context.annotation.*;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.*;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.*;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -54,7 +51,7 @@ public class SecurityConfig {
         .toList();
     
     cfg.setAllowedOrigins(origins);
-    cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+    cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS", "DELETE"));
     cfg.setAllowedHeaders(List.of("Content-Type","X-XSRF-TOKEN","Authorization"));
      // Allow credentials (cookies, authorization headers) to be sent with cross-origin requests
     cfg.setExposedHeaders(List.of("X-XSRF-TOKEN"));

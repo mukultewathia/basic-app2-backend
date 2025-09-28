@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 
 @Entity
 @Table(name = "habit_entries")
