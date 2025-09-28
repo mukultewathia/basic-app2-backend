@@ -11,6 +11,8 @@ import com.example.counter.challenge.ChallengeDto.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,6 +59,7 @@ public class ChallengeService {
         });
     }
 
+    @Transactional
     public List<ChallengeSummaryResponse> getChallengesByStatus(String username, ChallengeStatus status) {
         return executeWithTiming("get challenges by status", () -> {
             List<Challenge> challenges;
@@ -65,6 +68,9 @@ public class ChallengeService {
             } else {
                 challenges = challengeRepo.findByUsernameAndNotDeleted(username);
             }
+
+            // Update status of scheduled and active challenges based on current date
+            updateChallengeStatuses(challenges);
 
             return challenges.stream()
                     .map(ChallengeSummaryResponse::new)
@@ -262,6 +268,56 @@ public class ChallengeService {
         });
     }
     
+    /**
+     * Updates challenge statuses based on current date in India timezone
+     * Only updates scheduled and active challenges that need status changes
+     */
+    private void updateChallengeStatuses(List<Challenge> challenges) {
+        // Get current date in India timezone
+        ZoneId indiaZone = ZoneId.of("Asia/Kolkata");
+        LocalDate today = LocalDate.now(indiaZone);
+        
+        boolean hasUpdates = false;
+        
+        for (Challenge challenge : challenges) {
+            // Only update scheduled and active challenges
+            if (challenge.getScheduleStatus() == ChallengeStatus.scheduled || 
+                challenge.getScheduleStatus() == ChallengeStatus.active) {
+                
+                ChallengeStatus newStatus = determineChallengeStatus(challenge, today);
+                
+                // Only update if status has changed
+                if (challenge.getScheduleStatus() != newStatus) {
+                    challenge.setScheduleStatus(newStatus);
+                    hasUpdates = true;
+                    System.out.println("Updated challenge '" + challenge.getName() + 
+                        "' status from " + challenge.getScheduleStatus() + " to " + newStatus);
+                }
+            }
+        }
+        
+        // Save all updated challenges in one batch
+        if (hasUpdates) {
+            challengeRepo.saveAll(challenges);
+        }
+    }
+    
+    /**
+     * Determines the appropriate status for a challenge based on current date
+     */
+    private ChallengeStatus determineChallengeStatus(Challenge challenge, LocalDate today) {
+        LocalDate startDate = challenge.getStartDate();
+        LocalDate endDate = challenge.getEndDate();
+        
+        if (startDate.isAfter(today)) {
+            return ChallengeStatus.scheduled;
+        } else if (startDate.isEqual(today) || (startDate.isBefore(today) && endDate.isAfter(today)) || endDate.isEqual(today)) {
+            return ChallengeStatus.active;
+        } else {
+            return ChallengeStatus.expired;
+        }
+    }
+
     /**
      * Logs the time taken for an operation
      */
