@@ -1,6 +1,7 @@
-package com.example.counter.habit;
+package com.example.counter.notes;
 
 import com.example.counter.user.User;
+import com.example.counter.challenge.Challenge;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -29,6 +30,10 @@ public class Note {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "challenge_id", nullable = true)
+    private Challenge challenge;
+
     // Constructors
     public Note() {
         this.createdAt = getIndiaTimestamp();
@@ -39,6 +44,15 @@ public class Note {
         this.user = user;
         this.noteText = noteText;
         this.noteDate = noteDate;
+        this.createdAt = getIndiaTimestamp();
+        this.updatedAt = getIndiaTimestamp();
+    }
+
+    public Note(User user, String noteText, LocalDate noteDate, Challenge challenge) {
+        this.user = user;
+        this.noteText = noteText;
+        this.noteDate = noteDate;
+        this.challenge = challenge;
         this.createdAt = getIndiaTimestamp();
         this.updatedAt = getIndiaTimestamp();
     }
@@ -94,5 +108,14 @@ public class Note {
 
     public void setUpdatedAt(OffsetDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Challenge getChallenge() {
+        return challenge;
+    }
+
+    public void setChallenge(Challenge challenge) {
+        this.challenge = challenge;
+        this.updatedAt = getIndiaTimestamp();
     }
 }

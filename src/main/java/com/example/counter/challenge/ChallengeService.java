@@ -6,6 +6,9 @@ import com.example.counter.habit.Habit;
 import com.example.counter.habit.HabitEntry;
 import com.example.counter.habit.HabitRepository;
 import com.example.counter.habit.HabitEntryRepository;
+import com.example.counter.notes.Note;
+import com.example.counter.notes.NoteRepository;
+import com.example.counter.notes.NoteDto.NoteResponse;
 import com.example.counter.challenge.ChallengeDto.*;
 
 import org.springframework.stereotype.Service;
@@ -23,17 +26,20 @@ public class ChallengeService {
     private final HabitRepository habitRepo;
     private final HabitEntryRepository habitEntryRepo;
     private final UserRepository userRepo;
+    private final NoteRepository noteRepo;
 
     public ChallengeService(ChallengeRepository challengeRepo, 
                           ChallengeHabitsRepository challengeHabitsRepo,
                           HabitRepository habitRepo,
                           HabitEntryRepository habitEntryRepo,
-                          UserRepository userRepo) {
+                          UserRepository userRepo,
+                          NoteRepository noteRepo) {
         this.challengeRepo = challengeRepo;
         this.challengeHabitsRepo = challengeHabitsRepo;
         this.habitRepo = habitRepo;
         this.habitEntryRepo = habitEntryRepo;
         this.userRepo = userRepo;
+        this.noteRepo = noteRepo;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -163,8 +169,47 @@ public class ChallengeService {
         });
     }
 
+    @Transactional
+    public NoteResponse upsertNoteToChallenge(String username, Long challengeId, LocalDate noteDate, String noteText) {
+        return executeWithTiming("upsert note to challenge", () -> {
+            // Validate challenge and user
+            Challenge challenge = validateAndGetChallenge(username, challengeId);
+            User user = validateAndGetUser(username);
+            
+            // Check if note exists for this date without challenge
+            Optional<Note> existingNote = noteRepo.findByUserAndNoteDate(user, noteDate);
+            if (existingNote.isPresent()) {
+                return updateExistingNote(existingNote.get(), noteText, challenge);
+            }
+            else{
+                return createNewNote(user, noteText, challenge, noteDate);
+            }
+        });
+    }
+
+
     // ==================== HELPER METHODS ====================
     
+    private NoteResponse updateExistingNote(Note note, String noteText, Challenge challenge) {
+        String message = "";
+        if(note.getChallenge() == null) {
+            note.setChallenge(challenge);
+            message = "Note already existed and has been attached to the challenge";
+        }
+        else {
+            note.setNoteText(noteText);
+            message = "Note updated successfully";
+        }
+        noteRepo.save(note);
+        return new NoteResponse(note,message);
+    }
+
+    private NoteResponse createNewNote(User user, String noteText, Challenge challenge, LocalDate noteDate) {
+        Note newNote = new Note(user, noteText, noteDate, challenge);
+        newNote = noteRepo.save(newNote);
+        return new NoteResponse(newNote, "Note created successfully");
+    }
+
     /**
      * Validates that a user exists and returns the user entity
      */

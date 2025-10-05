@@ -64,25 +64,5 @@ public class HabitDto {
         }
     }
 
-    public record NoteRequest(
-            @NotNull LocalDate noteDate,
-            @NotNull @NotBlank String noteText) {}
-    
-    public record NoteResponse(
-            Long id,
-            Long userId,
-            String noteText,
-            LocalDate noteDate,
-            OffsetDateTime createdAt,
-            OffsetDateTime updatedAt) {
-        public NoteResponse(Note note) {
-            this(note.getId(),
-                 note.getUser().getUserId(),
-                 note.getNoteText(),
-                 note.getNoteDate(),
-                 note.getCreatedAt(),
-                 note.getUpdatedAt());
-        }
-    }
 
 } 

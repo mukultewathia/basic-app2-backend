@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import com.example.counter.challenge.ChallengeDto.*;
+import com.example.counter.notes.NoteDto.NoteRequest;
+import com.example.counter.notes.NoteDto.NoteResponse;
+import com.example.counter.notes.NoteService;
 import com.example.counter.auth.security.CurrentUser;
 import java.util.List;
 
@@ -14,6 +17,9 @@ import java.util.List;
 public class ChallengeController {
     @Autowired
     private ChallengeService challengeService;
+    
+    @Autowired
+    private NoteService noteService;
 
     // GET /challenge/?status=...
     @GetMapping
@@ -76,6 +82,23 @@ public class ChallengeController {
             @PathVariable Long habitId) {
         String username = CurrentUser.getCurrentUsername();
         challengeService.deleteHabitFromChallenge(username, challengeId, habitId);
+    }
+
+    // POST /challenge/{challengeId}/note
+    @PostMapping("/{challengeId}/note")
+    @ResponseStatus(HttpStatus.CREATED)
+    public NoteResponse upsertNoteToChallenge(
+            @PathVariable Long challengeId,
+            @Valid @RequestBody NoteRequest request) {
+        String username = CurrentUser.getCurrentUsername();
+        return challengeService.upsertNoteToChallenge(username, challengeId, request.noteDate(), request.noteText());
+    }
+
+    // GET /challenge/{challengeId}/notes
+    @GetMapping("/{challengeId}/notes")
+    public List<NoteResponse> getNotesByChallenge(@PathVariable Long challengeId) {
+        String username = CurrentUser.getCurrentUsername();
+        return noteService.getNotesByChallenge(username, challengeId);
     }
 }
 

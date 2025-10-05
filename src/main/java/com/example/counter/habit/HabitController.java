@@ -9,8 +9,9 @@ import com.example.counter.habit.HabitDto.HabitResponse;
 import com.example.counter.habit.HabitDto.HabitEntryRequest;
 import com.example.counter.habit.HabitDto.HabitEntryResponse;
 import com.example.counter.habit.HabitDto.AllHabitData;
-import com.example.counter.habit.HabitDto.NoteRequest;
-import com.example.counter.habit.HabitDto.NoteResponse;
+import com.example.counter.notes.NoteDto.NoteRequest;
+import com.example.counter.notes.NoteDto.NoteResponse;
+import com.example.counter.notes.NoteService;
 import com.example.counter.auth.security.CurrentUser;
 import java.util.List;
 
@@ -89,11 +90,10 @@ public class HabitController {
     @PostMapping("/upsertNote")
     @ResponseStatus(HttpStatus.CREATED)
     public NoteResponse upsertNote(@Valid @RequestBody NoteRequest req) {
-        Note note = noteService.upsertNote(
+        return noteService.upsertNote(
                 req.noteDate(),
                 req.noteText()
         );
-        return new NoteResponse(note);
     }
 
     @GetMapping("/notes")
