@@ -8,6 +8,8 @@ import com.example.counter.user.User
 import com.example.counter.user.UserRepository
 import jakarta.servlet.http.HttpServletResponse
 import java.time.Duration
+import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -21,6 +23,47 @@ class AuthController(
         private val emailService: EmailService
 ) {
     private val emailRegex = """^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$""".toRegex()
+    private val rateLimits = ConcurrentHashMap<String, RateLimitInfo>()
+
+    private data class RateLimitInfo(
+        val attemptCount: Int,
+        val lastRequestTime: Instant
+    )
+
+    private fun checkRateLimit(email: String): ResponseEntity<*>? {
+        val now = Instant.now()
+        var allowed = false
+        var remainingWaitSeconds = 0L
+
+        rateLimits.compute(email) { _, info ->
+            if (info == null || Duration.between(info.lastRequestTime, now).toMinutes() >= 15) {
+                allowed = true
+                RateLimitInfo(1, now)
+            } else {
+                val exponent = info.attemptCount - 1
+                val delaySeconds = (30L * Math.pow(2.0, exponent.toDouble()).toLong()).coerceAtMost(3600L)
+                val nextAllowedTime = info.lastRequestTime.plusSeconds(delaySeconds)
+
+                if (now.isBefore(nextAllowedTime)) {
+                    allowed = false
+                    remainingWaitSeconds = Duration.between(now, nextAllowedTime).toSeconds()
+                    info
+                } else {
+                    allowed = true
+                    RateLimitInfo(info.attemptCount + 1, now)
+                }
+            }
+        }
+
+        if (!allowed) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(mapOf(
+                    "error" to "Too many OTP requests. Please try again in $remainingWaitSeconds seconds.",
+                    "retryAfterSeconds" to remainingWaitSeconds
+                ))
+        }
+        return null
+    }
 
     /**
      * Request a sign-up OTP for a given email and username.
@@ -34,7 +77,10 @@ class AuthController(
         val validationError = validateSignup(username, email)
         if (validationError != null) return validationError
 
-        sendOtp(email!!, username!!)
+        val rateLimitError = checkRateLimit(email!!)
+        if (rateLimitError != null) return rateLimitError
+
+        sendOtp(email, username!!)
 
         return ResponseEntity.ok(mapOf("ok" to true, "message" to "OTP sent successfully"))
     }
