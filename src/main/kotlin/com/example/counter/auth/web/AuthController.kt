@@ -20,6 +20,7 @@ class AuthController(
         private val users: UserRepository,
         private val emailService: EmailService
 ) {
+    private val emailRegex = """^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$""".toRegex()
 
     /**
      * Request a sign-up OTP for a given email and username.
@@ -50,6 +51,10 @@ class AuthController(
         if (email.isNullOrBlank()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(mapOf("error" to "Email required"))
+        }
+        if (!emailRegex.matches(email)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(mapOf("error" to "Invalid email format"))
         }
 
         if (users.findByUsername(username).isPresent) {
