@@ -181,7 +181,7 @@ class AuthController(
 
         res.addHeader(
                 HttpHeaders.SET_COOKIE,
-                CookieUtil.refreshCookie(refresh, Duration.ofDays(1).toSeconds()).toString()
+                CookieUtil.refreshCookie(refresh, Duration.ofDays(jwt.refreshDays).toSeconds()).toString()
         )
 
         return ResponseEntity.ok(
@@ -190,7 +190,7 @@ class AuthController(
                         "username" to user.username,
                         "email" to (user.email ?: ""),
                         "accessToken" to access,
-                        "expiresIn" to Duration.ofMinutes(30).toSeconds()
+                        "expiresIn" to Duration.ofMinutes(jwt.accessMinutes).toSeconds()
                 )
         )
     }
@@ -240,7 +240,7 @@ class AuthController(
                         "userId" to u.userId,
                         "email" to (u.email ?: ""),
                         "accessToken" to access,
-                        "expiresIn" to Duration.ofMinutes(30).toSeconds()
+                        "expiresIn" to Duration.ofMinutes(jwt.accessMinutes).toSeconds()
                 )
         )
     }

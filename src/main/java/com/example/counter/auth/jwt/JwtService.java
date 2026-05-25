@@ -23,6 +23,15 @@ public class JwtService {
     this.refreshDays = refreshDays;
   }
 
+  public long getAccessMinutes() {
+    return accessMinutes;
+  }
+
+  public long getRefreshDays() {
+    return refreshDays;
+  }
+
+
   public String generateToken(String username, long userId) {
     Instant now = Instant.now();
     return JWT.create()
