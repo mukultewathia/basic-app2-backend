@@ -14,13 +14,16 @@ class ChallengeDto {
         @field:NotNull @field:NotBlank val name: String,
         @field:NotNull val habitIds: List<Long>,
         @field:NotNull val startDate: LocalDate,
-        @field:NotNull @field:Positive val durationDays: Int
+        @field:NotNull @field:Positive val durationDays: Int,
+        val challengeDescription: String? = null
     )
 
     data class ChallengeUpdateRequest(
         val name: String? = null,
         val startDate: LocalDate? = null,
-        @field:Min(1) val durationDays: Int? = null
+        @field:Min(1) val durationDays: Int? = null,
+        val challengeDescription: String? = null,
+        val retrospective: String? = null
     )
 
     data class ChallengeSummaryResponse(
@@ -80,7 +83,9 @@ class ChallengeDto {
         val successPercent: Int,
         val habitsInfo: List<HabitInfo>,
         val createdAt: OffsetDateTime,
-        val updatedAt: OffsetDateTime
+        val updatedAt: OffsetDateTime,
+        val challengeDescription: String?,
+        val retrospective: String?
     ) {
         constructor(challenge: Challenge, habitsInfo: List<HabitInfo>) : this(
             challengeId = challenge.challengeId,
@@ -93,7 +98,9 @@ class ChallengeDto {
             successPercent = challenge.successPercent,
             habitsInfo = habitsInfo,
             createdAt = challenge.createdAt,
-            updatedAt = challenge.updatedAt
+            updatedAt = challenge.updatedAt,
+            challengeDescription = challenge.challengeDescription,
+            retrospective = challenge.retrospective
         )
     }
 
@@ -108,7 +115,9 @@ class ChallengeDto {
         val completionStatus: CompletionStatus,
         val successPercent: Int,
         val createdAt: OffsetDateTime,
-        val updatedAt: OffsetDateTime
+        val updatedAt: OffsetDateTime,
+        val challengeDescription: String?,
+        val retrospective: String?
     ) {
         constructor(challenge: Challenge) : this(
             challengeId = challenge.challengeId,
@@ -121,7 +130,9 @@ class ChallengeDto {
             completionStatus = challenge.completion,
             successPercent = challenge.successPercent,
             createdAt = challenge.createdAt,
-            updatedAt = challenge.updatedAt
+            updatedAt = challenge.updatedAt,
+            challengeDescription = challenge.challengeDescription,
+            retrospective = challenge.retrospective
         )
     }
 }

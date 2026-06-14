@@ -39,6 +39,7 @@ class ChallengeService(
 
             // Create challenge
             var challenge = Challenge(user, request.name, request.startDate, request.durationDays)
+            challenge.challengeDescription = request.challengeDescription
             challenge = challengeRepo.save(challenge)
 
             // Add habits to challenge
@@ -95,6 +96,16 @@ class ChallengeService(
 
             if (request.durationDays != null) {
                 challenge.durationDays = request.durationDays
+                updated = true
+            }
+
+            if (request.challengeDescription != null) {
+                challenge.challengeDescription = request.challengeDescription
+                updated = true
+            }
+
+            if (request.retrospective != null) {
+                challenge.retrospective = request.retrospective
                 updated = true
             }
 

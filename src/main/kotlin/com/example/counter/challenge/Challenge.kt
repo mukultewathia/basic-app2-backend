@@ -32,6 +32,12 @@ class Challenge {
     @Column(name = "end_date", nullable = false, insertable = false, updatable = false)
     var endDate: LocalDate? = null
 
+    @Column(name = "challenge_description")
+    var challengeDescription: String? = null
+
+    @Column(name = "retrospective")
+    var retrospective: String? = null
+
     @Enumerated(EnumType.STRING)
     @Column(name = "schedule_status", nullable = false, columnDefinition = "challenge_status")
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
